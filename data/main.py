@@ -39,16 +39,16 @@ def CountCommands(line, commandMapping):
 
 def ProcessInputFile(inputFilePath, outputFilePath, commandMapping):
     with open(inputFilePath, 'r') as inputFile, open(outputFilePath, 'w') as outputFile:
-        header = ' '.join(commandMapping.keys())
-        outputFile.write(f"Line {header}\n")
-        
+        header = ','.join(commandMapping.keys())
+        outputFile.write(f"Line,{header}\n")
+
         for lineNum, line in enumerate(inputFile, start=1):
             line = line.strip()
             if line:
                 counts = CountCommands(line, commandMapping)
-                countsStr = ' '.join(str(count) for count in counts.values())
+                countsStr = ','.join(str(count) for count in counts.values())
                 lastWord = line.strip().split()[-1]
-                outputFile.write(f"{lineNum} {countsStr} {lastWord}\n")
+                outputFile.write(f"{lineNum},{countsStr},{lastWord}\n")
 
 
 def ReadMappingFile(filePath):
