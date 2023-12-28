@@ -16,14 +16,14 @@ for column_name in X.columns:
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=seed)
 # Create a Random Forest classifier
-rf_classifier = RandomForestClassifier(random_state=42)
+rf_classifier = RandomForestClassifier(max_depth=22, max_features='sqrt', min_samples_leaf=1, min_samples_split=2, n_estimators=200, random_state=seed)
 
 # Define hyperparameter grid
 param_grid = {
-    'n_estimators': [50, 100, 150],
-    'max_depth': [None, 10, 20],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4],
+    #'n_estimators': [10, 50, 100, 150, 200, 250, 300],
+    #'max_depth': [None, *range(1, 31)],
+    #'min_samples_split': [2, 5, 10, 20, 40, 80, 160, 320],
+    #'min_samples_leaf': [1, 2, 4, 8, 16, 32, 64, 128, 256],
     'max_features': ['auto', 'sqrt', 'log2', None],
 }
 

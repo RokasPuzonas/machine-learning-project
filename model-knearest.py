@@ -6,6 +6,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import numpy as np
 from sklearn.model_selection import cross_val_score
 from imblearn.over_sampling import SMOTE
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 dataset = pd.read_csv('data/counted-trimmed.csv')
 seed = 42
@@ -44,3 +46,17 @@ row_sums = np.sum(confusion, axis=1)
 percentage_accuracy = (diag_values / row_sums)
 for i in range(len(labels)):
     print(f"{labels[i]:10} {percentage_accuracy[i]*100:.2f}")
+
+if False:
+    plt.bar(labels, percentage_accuracy)
+    plt.title("Per class accuracy")
+    plt.xlabel("Class")
+    plt.ylabel("Accuracy")
+    plt.ylim(top=1)
+    plt.show()
+
+sns.heatmap(confusion, fmt=".0f", annot=True, xticklabels=labels, yticklabels=labels)
+plt.title("Confusion matrix")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.show()

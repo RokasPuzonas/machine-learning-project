@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.discriminant_analysis import StandardScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 import numpy as np
@@ -18,61 +18,39 @@ for column_name in X.columns:
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=seed)
 
-# Best k=1
-if False:
-    for p in range(1, 10):
-        # Create a KNeighborsClassifier with k (k neighbors)
-        knn_classifier = KNeighborsClassifier(n_neighbors=p)
-
-        # Fit the model to the training data
-        knn_classifier.fit(X_train, Y_train)
-
-        # Make predictions on the test data
-        Y_pred = knn_classifier.predict(X_test)
-
-        print(f"--- k={p} ---")
-        # Evaluate the accuracy of the model
-        accuracy = accuracy_score(Y_test, Y_pred)
-        print(f'Accuracy: {accuracy:.2f}')
-
-        scores = cross_val_score(knn_classifier, X_train, Y_train, cv=5)
-        print(f'Cross-validated Accuracy (5 fold): {scores.mean():.2f}')
-
-# Best p=1
-if False:
-    for p in [1, 1.5, 2, 2.5, 3]:
-        # Create a KNeighborsClassifier with k (k neighbors)
-        knn_classifier = KNeighborsClassifier(n_neighbors=1, p=p)
-
-        # Fit the model to the training data
-        knn_classifier.fit(X_train, Y_train)
-
-        # Make predictions on the test data
-        Y_pred = knn_classifier.predict(X_test)
-
-        print(f"--- p={p} ---")
-        # Evaluate the accuracy of the model
-        accuracy = accuracy_score(Y_test, Y_pred)
-        print(f'Accuracy: {accuracy:.2f}')
-
-        scores = cross_val_score(knn_classifier, X_train, Y_train, cv=5)
-        print(f'Cross-validated Accuracy (5 fold): {scores.mean():.2f}')
-
 smote = SMOTE(random_state=seed)
 X_train, Y_train = smote.fit_resample(X_train, Y_train)
 
 # Create a KNeighborsClassifier with k (k neighbors)
 knn_classifier = KNeighborsClassifier(n_neighbors=1, p=1)
 
-# Fit the model to the training data
-knn_classifier.fit(X_train, Y_train)
+# Define hyperparameter grid
+param_grid = {
+    'n_neighbors': [1, 5, 10, 15, 20, 25, 30],
+    'p': [1, 2, 3, 4, 5],
+}
 
-# Make predictions on the test data
-Y_pred = knn_classifier.predict(X_test)
+# Set up GridSearchCV
+grid_search = GridSearchCV(
+    knn_classifier,
+    param_grid=param_grid,
+    scoring='accuracy',
+    cv=5,  # Number of cross-validation folds
+    verbose=1,
+    n_jobs=-1,  # Use all available cores for parallel processing
+)
 
-# Evaluate the accuracy of the model
+# Perform grid search on the training data
+grid_search.fit(X_train, Y_train)
+
+# Print the best hyperparameters
+print("Best Hyperparameters:", grid_search.best_params_)
+
+# Evaluate the best model on the test data
+best_model = grid_search.best_estimator_
+Y_pred = best_model.predict(X_test)
 accuracy = accuracy_score(Y_test, Y_pred)
-print(f'Accuracy: {accuracy:.2f}')
+print(f"Accuracy on Test Set: {accuracy * 100:.2f}%")
 
 scores = cross_val_score(knn_classifier, X_train, Y_train, cv=5)
 print(f'Cross-validated Accuracy (5 fold): {scores.mean():.2f}')
