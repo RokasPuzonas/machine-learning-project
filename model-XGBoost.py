@@ -47,28 +47,27 @@ y_pred = xgb_model.predict(dtest)
 y_pred = y_pred.astype(int)
 y_test = y_test.astype(int)
 accuracy = accuracy_score(y_test, y_pred)
-best = accuracy
+
 best_array = [depth, eta, rounds, lamb, alpha, ]
-y_pred_original = label_encoder.inverse_transform(y_pred)
-y_predtest_original = label_encoder.inverse_transform(y_test)
-report = classification_report(y_predtest_original, y_pred_original)
+y_pred = label_encoder.inverse_transform(y_pred)
+y_test = label_encoder.inverse_transform(y_test)
+report = classification_report(y_test, y_pred, output_dict=True)
 
 print("Classification Report:")
 print(report)
 print("Best case")
 print(f"Depth: {best_array[0]} Eta: {best_array[1]} Rounds: {best_array[2]} "
-      f"Lambda: {best_array[3]} Alpha: {best_array[4]}  Accuracy: {best}")
-report_dict = classification_report(y_predtest_original, y_pred_original, output_dict=True)
+      f"Lambda: {best_array[3]} Alpha: {best_array[4]}  Accuracy: {accuracy}")
 
-class_names = list(report_dict.keys())[:-3]  # exclude 'accuracy', 'macro avg', and 'weighted avg'
-accuracy_values = [report_dict[class_name]['precision'] for class_name in class_names]
+class_names = list(report.keys())[:-3] 
+accuracy_values = [report[class_name]['precision'] for class_name in class_names]
 
-cm = confusion_matrix(y_predtest_original, y_pred_original)
+conf = confusion_matrix(y_test, y_pred)
 
-cm_df = pd.DataFrame(cm, index=class_names, columns=class_names)
+conf_data_frame = pd.DataFrame(conf, index=class_names, columns=class_names)
 
 plt.figure(figsize=(10, 8))
-sns.heatmap(cm_df, annot=True, fmt='g', cmap='Blues', cbar=False)
+sns.heatmap(conf_data_frame, annot=True, fmt='g', cmap='Blues', cbar=False)
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.title('Confusion Matrix')
